@@ -19,44 +19,43 @@ Java_com_sean_ffmpegdemo_MainActivity_decodeAudioCpp(
     const char *src = env->GetStringUTFChars(_src, nullptr);
     const char *out = env->GetStringUTFChars(_out, nullptr);
 
-    av_register_all();
     AVFormatContext *fmt_ctx = avformat_alloc_context();
 
-    if (avformat_open_input(&fmt_ctx, src, NULL, NULL) < 0) {
+    if (avformat_open_input(&fmt_ctx, src, nullptr, nullptr) < 0) {
         LOGE("open file error");
         return;
     }
 
-    if (avformat_find_stream_info(fmt_ctx, NULL) < 0) {
+    if (avformat_find_stream_info(fmt_ctx, nullptr) < 0) {
         LOGE("find stream info error");
         return;
     }
 
     int audio_stream_index = -1;
     for (int i = 0; i < fmt_ctx->nb_streams; i++) {
-        if (fmt_ctx->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO) {
+        if (fmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
             audio_stream_index = i;
             LOGI("find audio stream index");
             break;
         }
     }
 
-    AVCodecContext *codec_ctx = avcodec_alloc_context3(NULL);
-    avcodec_parameters_to_context(codec_ctx, fmt_ctx->streams[audio_stream_index]->codec);
+    AVCodecContext *codec_ctx = avcodec_alloc_context3(nullptr);
+    avcodec_parameters_to_context(codec_ctx, fmt_ctx->streams[audio_stream_index]->codecpar);
     AVCodec *codec = avcodec_find_decoder(codec_ctx->codec_id);
-    if (avcodec_open2(codec_ctx, codec, NULL) < 0) {
+    if (avcodec_open2(codec_ctx, codec, nullptr) < 0) {
         LOGE("could not open codec");
         return;
     }
 
     AVPacket *avPacket = av_packet_alloc();
     AVFrame *avFrame = av_frame_alloc();
-    int got_frame;
+    int got_frame = 0;
     int index = 0;
     FILE *out_file = fopen(out, "wb");
     while (av_read_frame(fmt_ctx, avPacket) == 0) {
         if (avPacket->stream_index == audio_stream_index) {
-            if (avcodec_decode_audio4(codec_ctx, avFrame, &got_frame, avPacket) < 0) {
+            if (avcodec_receive_frame(codec_ctx, avFrame) < 0 || avcodec_receive_packet(codec_ctx, avPacket) < 0) {
                 LOGE("decode error:%d", index);
                 break;
             }

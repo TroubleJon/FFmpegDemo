@@ -6,61 +6,69 @@ find_library(log-lib
         log)
 find_library(android-lib
         android)
-set(distribution_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/armeabi-v7a)
+set(distribution_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/${ANDROID_ABI})
 
 
-add_library(avutil-55
+add_library(avutil
         SHARED
         IMPORTED)
-set_target_properties(avutil-55
+set_target_properties(avutil
         PROPERTIES IMPORTED_LOCATION
-        ${distribution_DIR}/libavutil-55.so)
+        ${distribution_DIR}/libavutil.so)
 
-add_library(swresample-2
+add_library(swresample
         SHARED
         IMPORTED)
-set_target_properties(swresample-2
+set_target_properties(swresample
         PROPERTIES IMPORTED_LOCATION
-        ${distribution_DIR}/libswresample-2.so)
+        ${distribution_DIR}/libswresample.so)
 
-add_library(avcodec-57
+add_library(avcodec
         SHARED
         IMPORTED)
-set_target_properties(avcodec-57
+set_target_properties(avcodec
         PROPERTIES IMPORTED_LOCATION
-        ${distribution_DIR}/libavcodec-57.so)
+        ${distribution_DIR}/libavcodec.so)
 
-add_library(avfilter-6
+add_library(avfilter
         SHARED
         IMPORTED)
-set_target_properties(avfilter-6
+set_target_properties(avfilter
         PROPERTIES IMPORTED_LOCATION
-        ${distribution_DIR}/libavfilter-6.so)
+        ${distribution_DIR}/libavfilter.so)
 
-add_library(swscale-4
+add_library(swscale
         SHARED
         IMPORTED)
-set_target_properties(swscale-4
+set_target_properties(swscale
         PROPERTIES IMPORTED_LOCATION
-        ${distribution_DIR}/libswscale-4.so)
+        ${distribution_DIR}/libswscale.so)
 
-add_library(avformat-57
+add_library(avformat
         SHARED
         IMPORTED)
-set_target_properties(avformat-57
+set_target_properties(avformat
         PROPERTIES IMPORTED_LOCATION
-        ${distribution_DIR}/libavformat-57.so)
+        ${distribution_DIR}/libavformat.so)
+
+add_library(postproc
+        SHARED
+        IMPORTED)
+set_target_properties(postproc
+        PROPERTIES IMPORTED_LOCATION
+        ${distribution_DIR}/libpostproc.so)
 
 
 set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
-include_directories(distribution_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs/include)
+include_directories(distribution_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../jniLibs//${ANDROID_ABI}/include)
 
 target_link_libraries(seanffmpeg
-        avutil-55       #工具库
-        swresample-2    #音频采样数据格式转换
-        avcodec-57      #编解码
-        avfilter-6      #滤镜特效处理
-        swscale-4       #视频像素数据格式转换
-        avformat-57     #封装格式处理
+        avutil        #工具库
+        swresample    #音频采样数据格式转换
+        avcodec       #编解码
+        avfilter      #滤镜特效处理
+        swscale       #视频像素数据格式转换
+        avformat      #封装格式处理
+        postproc
         ${log-lib})
